@@ -2,7 +2,7 @@ module.exports = {
 
     Barracks: function (unit, spawn) {
         //console.log('hatchery hatching');
-        spawn.spawnCreep(unit.body, unit.name, { memory: { type: unit.type, task: 'idle', working: false } });
+        spawn.spawnCreep(unit.body, unit.type + Game.time, { memory: { type: unit.type, task: 'idle', working: false } });
     },
 
     Sensors: function (room) {
@@ -24,8 +24,19 @@ module.exports = {
         for (let creepName in CREEPS) {
             room.memory.creeps.push(CREEPS[creepName].name)
         }
+
+        let CONSTRUCTIONS_SITES = room.find(FIND_CONSTRUCTION_SITES);
+        room.memory.constructionSites = []
+        for (let constSiteId in CONSTRUCTIONS_SITES) {
+            room.memory.constructionSites.push(CONSTRUCTIONS_SITES[constSiteId].id)
+        }
+
+        let numberOfHarvester = _.filter(Game.creeps, creep => creep.memory.task == 'harvest').length
+        let numberOfUpgrader = _.filter(Game.creeps, creep => creep.memory.task == 'upgrade').length
+        let numberOfBuilder = _.filter(Game.creeps, creep => creep.memory.task == 'build').length
+        console.log(`harvester: ${numberOfHarvester} / upgrader: ${numberOfUpgrader} / builder: ${numberOfBuilder}`)
     },
-    
+
 
     Graveyards: function () {
         //console.log('saying goodbye to fallen creeps')

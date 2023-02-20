@@ -32,6 +32,9 @@ module.exports = {
                 if(worker.transfer(stores[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     worker.moveTo(stores[0], {visualizePathStyle: {stroke: '#ffffff'}});
                 }
+            } else {
+                worker.moveTo(worker.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+                worker.memory.task = 'idle';
             }
         }
     },
@@ -39,11 +42,11 @@ module.exports = {
     Upgrade: function(worker) {
         if(worker.memory.working && worker.store[RESOURCE_ENERGY] == 0) {
             worker.memory.working = false;
-            worker.say('🔄 harvest');
+            worker.say('harvest');
         }
         if(!worker.memory.working && worker.store.getFreeCapacity() == 0) {
             worker.memory.working = true;
-            worker.say('⚡ upgrade');
+            worker.say('upgrade');
         }
 
         if(!worker.memory.working) {
@@ -57,12 +60,35 @@ module.exports = {
                 worker.moveTo(worker.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
             }
         }
+    },
+    
+    Build: function(worker){
+
+        let constructionSite = Game.getObjectById(worker.memory.taskTarget);
+
+        if(worker.memory.working && worker.store[RESOURCE_ENERGY] == 0) {
+            worker.memory.working = false;
+            worker.say('harvest');
+        }
+        if(!worker.memory.working && worker.store.getFreeCapacity() == 0) {
+            worker.memory.working = true;
+            worker.say('build');
+        }
+
+        if(worker.memory.working) {
+                if(worker.build(constructionSite) == ERR_NOT_IN_RANGE) {
+                    worker.moveTo(constructionSite, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
+            }
+
+        else {
+            var sources = worker.room.find(FIND_SOURCES);
+            if(worker.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+                worker.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
+            }
+        }
     }
     /*
-    Build: {
-        
-    }
-    
     Repair: {
         
     }

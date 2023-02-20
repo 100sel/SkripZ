@@ -3,6 +3,36 @@ const tasks = require('tasks')
 const units = require('units')
 const MAX_PEON = 10;
 
+const Superviseur = (room) => {
+    buildings.Graveyards();
+    buildings.Sensors(room);
+    //console.log('analyzing tasks');
+
+    for (let source in room.memory.sources) {
+        let isSourceUsed = _.filter(Game.creeps, creep => creep.memory.taskTarget == room.memory.sources[source]);
+        if (isSourceUsed.length == 0) {
+            Contremaitre('harvest', room, room.memory.sources[source]);
+        }
+    }
+
+    for (let constructionSite in room.memory.constructionSites) {
+        let isConstSiteUsed = _.filter(Game.creeps, creep => creep.memory.taskTarget == room.memory.constructionSites[constructionSite]);
+        if (isConstSiteUsed.length < 1) {
+            Contremaitre('build', room, room.memory.constructionSites[constructionSite]);
+        }
+    }
+
+    for (let worker in Game.creeps) {
+        if (Game.creeps[worker].memory.task == undefined) {
+            Game.creeps[worker].memory.task = 'idle';
+        }
+        if (_.filter(Game.creeps, worker => worker.memory.task == 'upgrade').length < 5) {
+            Contremaitre('upgrade', room, room.controller.id)
+        }
+
+        Manager(room);
+    }
+}
 
 const Contremaitre = (task, room, target) => {
     //console.log('planning tasks');
@@ -21,10 +51,21 @@ const Contremaitre = (task, room, target) => {
                 worker.memory.task = 'harvest';
                 worker.memory.taskTarget = target;
                 break;
-            case 'upgrade': 
+            case 'upgrade':
                 worker.memory.task = 'upgrade';
-                worker.memory.taskTarget = target.id;
+                worker.memory.taskTarget = target;
                 break;
+            case 'build':
+                worker.memory.task = 'build';
+                worker.memory.taskTarget = target;
+                break;
+        }
+    } else {
+        let numberOfWorkers = room.memory.creeps.length;
+        const bodyCost = _.sum(units.Peon.body, part => BODYPART_COST[part]);
+        const spawner = Game.spawns[room.memory.spawns[0]];
+        if (numberOfWorkers < MAX_PEON && bodyCost < spawner.store[RESOURCE_ENERGY]) {
+            buildings.Barracks(units.Peon, spawner);
         }
     }
 }
@@ -34,44 +75,18 @@ const Manager = (room) => {
     for (let creep of room.memory.creeps) {
         let worker = Game.creeps[creep];
         switch (worker.memory.task) {
-            case 'harvest': 
+            case 'harvest':
                 tasks.Harvest(worker);
                 break;
             case 'upgrade':
                 tasks.Upgrade(worker);
                 break;
+            case 'build':
+                tasks.Build(worker);
+                break;
         }
     }
 }
 
-const Superviseur = (room) => {
-    buildings.Graveyards();
-    buildings.Sensors(room);
-
-    if (room.memory.creeps.length < MAX_PEON) {
-        //console.log('spawning worker');
-        buildings.Barracks(units.Peon, Game.spawns[room.memory.spawns[0]])
-    }
-
-    //console.log('analyzing tasks');
-
-    for (let source in room.memory.sources) {
-        let isSourceUsed = _.filter(Game.creeps, creep => creep.memory.taskTarget == room.memory.sources[source]);
-        if (isSourceUsed.length <= 1) {
-            Contremaitre('harvest', room, room.memory.sources[source]);
-        }
-    }
-
-    for (let worker in Game.creeps) {
-        if (Game.creeps[worker].memory.task == undefined) {
-            Game.creeps[worker].memory.task = 'idle';
-        }
-        Contremaitre('upgrade', room, room.controller)
-    }
-
-    Manager(room);
-}
-
-
-module.exports = { Contremaitre, Superviseur }
+    module.exports = { Contremaitre, Superviseur }
 
