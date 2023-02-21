@@ -12,6 +12,12 @@ module.exports = {
         for (let sourceNumber in SOURCES) {
             room.memory.sources[sourceNumber] = SOURCES[sourceNumber].id;
         }
+        
+        let DROPPED_ENERGY = room.find(FIND_DROPPED_RESOURCES);
+        room.memory.dropped = [];
+        for (let droppedEnergyNumber in DROPPED_ENERGY) {
+            room.memory.dropped.push(DROPPED_ENERGY[droppedEnergyNumber].id)
+        }
 
         let SPAWNS = room.find(FIND_MY_SPAWNS);
         room.memory.spawns = [];
@@ -34,7 +40,9 @@ module.exports = {
         let numberOfHarvester = _.filter(Game.creeps, creep => creep.memory.task == 'harvest').length
         let numberOfUpgrader = _.filter(Game.creeps, creep => creep.memory.task == 'upgrade').length
         let numberOfBuilder = _.filter(Game.creeps, creep => creep.memory.task == 'build').length
-        console.log(`harvester: ${numberOfHarvester} / upgrader: ${numberOfUpgrader} / builder: ${numberOfBuilder}`)
+        let numberOfHauler = _.filter(Game.creeps, creep => creep.memory.task == 'haul').length
+        let numberOfWanker = _.filter(Game.creeps, creep => creep.memory.task == 'idle').length
+        console.log(`harvester: ${numberOfHarvester} / hauler: ${numberOfHauler} / upgrader: ${numberOfUpgrader} / builder: ${numberOfBuilder} / idle: ${numberOfWanker}`)
     },
 
 

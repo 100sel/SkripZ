@@ -15,6 +15,29 @@ module.exports = {
         body: [WORK, CARRY, MOVE],
         type: 'Peon',
         name: ''
-    }
+    },
 
+    Miner: {
+        body: [WORK, WORK, WORK, MOVE],
+        type: 'Miner',
+        name: ''
+    },
+
+    Hauler: {
+        body: [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
+        type: 'Hauler',
+        name: ''
+    },
+
+    Upgrader: {
+        body: [WORK, WORK, CARRY, MOVE],
+        type: 'Upgrader',
+        name: ''
+    },
+
+    Builder: {
+        body: [WORK, CARRY, MOVE, MOVE],
+        type: 'Builder',
+        name: ''
+    }
 };
